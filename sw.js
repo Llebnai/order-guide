@@ -1,5 +1,5 @@
 // Bump this number whenever you upload new files, so phones pick up the update.
-const VERSION = "order-guide-v1";
+const VERSION = "order-guide-v2";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icon-192.png", "icon-512.png"];
 
 self.addEventListener("install", e => {

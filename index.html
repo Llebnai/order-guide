@@ -317,11 +317,15 @@ function vcText(v, n) {
 function render() {
   const a = document.activeElement, keepId = a && a.id, s0 = a?.selectionStart, s1 = a?.selectionEnd;
   document.getElementById("units").innerHTML = allUnits().map(u => `<option value="${esc(u)}">`).join("");
-  app.innerHTML = header() + (S.phase === "loading" ? `<p class="empty">Opening the order guide…</p>`
+  app.innerHTML = header() + `<div id="main">${mainHtml()}</div>`;
+  if (keepId) { const el = document.getElementById(keepId); if (el) { el.focus({ preventScroll: true }); try { if (s0 != null) el.setSelectionRange(s0, s1); } catch {} if (el.dataset.qty !== undefined) onQtyFocus(el); } }
+}
+function renderMain() { document.getElementById("main").innerHTML = mainHtml(); }
+function mainHtml() {
+  return (S.phase === "loading" ? `<p class="empty">Opening the order guide…</p>`
     : S.phase === "nodb" ? `<p class="empty">Sign in to claude.ai to open this order guide. It saves your guide and orders to your account.</p>`
     : !S.vendors.length ? `<p class="empty">No vendors yet. Go to Guide setup and add your first vendor.</p>`
     : S.tab === "order" ? orderTab() : S.tab === "send" ? sendTab() : setupTab());
-  if (keepId) { const el = document.getElementById(keepId); if (el) { el.focus({ preventScroll: true }); try { if (s0 != null) el.setSelectionRange(s0, s1); } catch {} if (el.dataset.qty !== undefined) onQtyFocus(el); } }
 }
 
 function header() {
@@ -336,7 +340,7 @@ function header() {
     </div>
     ${S.tab === "order" && S.phase === "ready" ? `
       <input class="search" id="search" type="search" placeholder="Find an item" autocomplete="off" value="${esc(S.q)}">
-      ${S.q ? "" : `<div class="today">${todays.length ? `Order today: ${todays.map(v => `<button class="chip" data-act="jump" data-v="${v.id}">${esc(v.name)}</button>`).join("")}` : "No regular orders due today."}</div>`}` : ""}
+      ${`<div class="today" id="todaybar"${S.q ? " hidden" : ""}>${todays.length ? `Order today: ${todays.map(v => `<button class="chip" data-act="jump" data-v="${v.id}">${esc(v.name)}</button>`).join("")}` : "No regular orders due today."}</div>`}` : ""}
   </div>`;
 }
 
@@ -580,8 +584,8 @@ function addItem(vid) {
 
 app.addEventListener("input", e => {
   const t = e.target;
-  if (t.id === "search") { S.q = t.value; render(); return; }
-  if (t.dataset.myname !== undefined) { setMyName(t.value); render(); return; }
+  if (t.id === "search") { S.q = t.value; document.getElementById("todaybar").hidden = !!S.q; renderMain(); return; }
+  if (t.dataset.myname !== undefined) { setMyName(t.value); refreshPreviews(); return; }
   if (t.dataset.qty !== undefined) { setQty(t.dataset.v, t.dataset.i, t.value); updGhost(t); }
 });
 
@@ -603,7 +607,11 @@ function commitUnit(t) {
   const vd = vendor(t.dataset.v), it = vd.items.find(x => x.id === t.dataset.i);
   S.editUnit = null;
   if ((it.unit || "") !== t.value.trim()) { it.unit = t.value.trim(); saveVendor(vd); }
-  render();
+  const btn = document.createElement("button");
+  btn.className = "unit" + (it.unit ? " set" : ""); btn.dataset.act = "unit"; btn.dataset.v = vd.id; btn.dataset.i = it.id;
+  btn.setAttribute("aria-label", `Unit for ${it.name}: ${it.unit || "not set"}`); btn.textContent = it.unit || "unit";
+  if (t.isConnected) t.replaceWith(btn);
+  if (!isTyping()) flushRender();
 }
 
 app.addEventListener("focusin", e => { if (e.target.dataset.qty !== undefined) onQtyFocus(e.target); });
@@ -642,7 +650,35 @@ function mergeDraft(vid, server) {
   keys.forEach(k => { if (dk[k] === undefined) { if (sq[k] !== undefined) local.qty[k] = sq[k]; else delete local.qty[k]; } });
   if (dk._meta === undefined) { local.forDate = server?.forDate || ""; local.sentAt = server?.sentAt || ""; local.sentHash = server?.sentHash || ""; }
 }
-const softRender = () => { if (S.editUnit) return; render(); };
+function isTyping() {
+  const a = document.activeElement;
+  if (!a || !app.contains(a)) return false;
+  return a.tagName === "TEXTAREA" || (a.tagName === "INPUT" && !["file", "date", "button"].includes(a.type));
+}
+let pendingRender = false;
+function flushRender() { pendingRender = false; render(); }
+function patchInPlace() {
+  document.querySelectorAll("input[data-qty]").forEach(el => {
+    const val = S.drafts[el.dataset.v]?.qty?.[el.dataset.i] ?? "";
+    if (el !== document.activeElement && el.value !== val) el.value = val;
+    el.closest(".row")?.classList.toggle("has", hasQty(el.value));
+  });
+  S.vendors.forEach(v => { const vc = document.getElementById("vc-" + v.id); if (vc) vc.innerHTML = vcText(v, lines(v).length); });
+  const sc = document.getElementById("sendcount"); if (sc) sc.textContent = orderCount() ? ` (${orderCount()})` : "";
+}
+function refreshPreviews() {
+  S.vendors.forEach(v => {
+    const pv = document.getElementById("pv-" + v.id); if (!pv) return;
+    const m = message(v); pv.textContent = m.body;
+    document.querySelectorAll(`#s-${v.id} a[data-act="sentvia"]`).forEach(a => { a.href = a.href.startsWith("mailto:") ? m.mailto : m.gmail; });
+  });
+}
+const softRender = () => {
+  if (S.editUnit || isTyping()) { pendingRender = true; patchInPlace(); return; }
+  render();
+};
+// When focus leaves a box (and doesn't land in another one), catch up on any redraw we held back.
+document.addEventListener("focusout", () => setTimeout(() => { if (pendingRender && !isTyping() && !S.editUnit) flushRender(); }, 250));
 
 
 /* ---------- on-device storage (same shape as the claude.ai version, so syncing can be added later) ---------- */
