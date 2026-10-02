@@ -1,0 +1,716 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#E5EAE4" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#141916" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+<title>Kitchen Order Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: one narrow column, like the printed guide on a clipboard. Vendors are masking-tape labels; items are rows you fill in. */
+:root{
+  --ground:#E5EAE4; --sheet:#FBFCFA; --sheet-2:#F2F5F0; --ink:#1D2420; --muted:#5D6962; --line:#D2D9D0;
+  --tape:#EFD35C; --tape-dim:#E2DDC6; --tape-ink:#392F0E;
+  --go:#2A6A4D; --go-ink:#FFFFFF; --go-soft:#DCEDE3; --warn:#AE4029; --ghost:#9AA59E;
+  --display:'Barlow Condensed','Arial Narrow',sans-serif;
+  --body:'Public Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#141916; --sheet:#1C231F; --sheet-2:#222A25; --ink:#E5ECE7; --muted:#9BA7A0; --line:#2F3933;
+  --tape:#D8BD48; --tape-dim:#5B5539; --tape-ink:#211C06;
+  --go:#5DB98A; --go-ink:#0E1F16; --go-soft:#1E3A2C; --warn:#E5806A; --ghost:#66726B; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --ground:#141916; --sheet:#1C231F; --sheet-2:#222A25; --ink:#E5ECE7; --muted:#9BA7A0; --line:#2F3933;
+  --tape:#D8BD48; --tape-dim:#5B5539; --tape-ink:#211C06;
+  --go:#5DB98A; --go-ink:#0E1F16; --go-soft:#1E3A2C; --warn:#E5806A; --ghost:#66726B; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--ground);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45}
+button,input,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--go);outline-offset:2px}
+.wrap{max-width:760px;margin:0 auto;padding-inline:16px;padding-block:0 80px}
+
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--ground);padding-block:14px 10px;border-bottom:1px solid var(--line)}
+.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+h1{font-family:var(--display);font-weight:700;font-size:32px;line-height:1;margin:0;text-wrap:balance}
+.sub{color:var(--muted);font-size:13px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:12px}
+.tab{border:1px solid var(--line);background:var(--sheet);border-radius:10px;padding:9px 6px;font-weight:600;cursor:pointer;font-size:14px}
+.tab[aria-pressed="true"]{background:var(--ink);color:var(--ground);border-color:var(--ink)}
+.search{width:100%;margin-top:10px;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:var(--sheet)}
+.today{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:13px;color:var(--muted);align-items:center}
+.chip{background:var(--tape);color:var(--tape-ink);font-family:var(--display);font-weight:600;font-size:15px;padding:2px 9px;border-radius:2px;cursor:pointer;border:0}
+
+.vendor{margin-top:20px;scroll-margin-top:190px}
+.vhead{display:flex;align-items:flex-start;gap:10px;width:100%;background:none;border:0;padding:0;text-align:left;cursor:pointer}
+.label{display:inline-block;background:var(--tape);color:var(--tape-ink);font-family:var(--display);font-weight:700;font-size:22px;line-height:1.15;padding:3px 12px 2px;transform:rotate(-.6deg);box-shadow:0 1px 0 color-mix(in srgb,var(--tape-ink) 25%,transparent)}
+.vendor.off .label{background:var(--tape-dim)}
+.vmeta{font-size:13px;color:var(--muted);margin-top:6px}
+.vright{margin-left:auto;text-align:right;font-size:13px;color:var(--muted);white-space:nowrap;padding-top:4px}
+.vright b{color:var(--go);font-size:15px}
+.sent{color:var(--go);font-weight:600}
+
+.sheet{background:var(--sheet);border:1px solid var(--line);border-radius:12px;margin-top:10px;overflow:hidden}
+.bar{padding:10px 14px;font-size:13px;color:var(--muted);border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:4px 14px;align-items:center}
+.bar a{color:var(--go)}
+.cat{padding:7px 14px 4px;font-family:var(--display);font-weight:600;font-size:17px;color:var(--muted);border-bottom:1px solid var(--line);background:var(--sheet-2)}
+.row{display:grid;grid-template-columns:minmax(0,1fr) 76px 66px;gap:8px;align-items:center;padding:5px 14px;border-bottom:1px solid var(--line)}
+.row.has{background:var(--go-soft)}
+.iname{min-width:0;overflow-wrap:anywhere}
+.qty{position:relative;background:var(--sheet);border:1px solid var(--line);border-radius:8px;height:36px}
+.row.has .qty{border-color:var(--go)}
+.qty input{position:relative;z-index:1;width:100%;height:100%;border:0;background:transparent;padding:0 9px;font-weight:700;font-variant-numeric:tabular-nums;border-radius:8px}
+.ghost{position:absolute;inset:0;padding:0 9px;display:flex;align-items:center;color:var(--ghost);font-weight:700;font-variant-numeric:tabular-nums;white-space:pre;pointer-events:none;overflow:hidden}
+.ghost .t{visibility:hidden}
+.unit{height:36px;border:1px dashed var(--line);background:transparent;border-radius:8px;font-size:13px;color:var(--muted);cursor:pointer;padding:0 4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.unit.set{border-style:solid;color:var(--ink);font-weight:600}
+.unitin{height:36px;width:100%;border:1px solid var(--go);border-radius:8px;padding:0 6px;background:var(--sheet);font-size:13px}
+.sugg{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:12px;color:var(--muted);padding:2px 0 4px}
+.sugg button{border:1px solid var(--go);color:var(--go);background:var(--sheet);border-radius:999px;padding:3px 11px;font-weight:700;font-size:13px;cursor:pointer;font-variant-numeric:tabular-nums}
+
+.btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.btn{border:1px solid var(--line);background:var(--sheet);border-radius:9px;padding:8px 13px;font-weight:600;cursor:pointer;text-decoration:none;display:inline-block;font-size:14px;color:var(--ink)}
+.btn.primary{background:var(--go);color:var(--go-ink);border-color:var(--go)}
+.btn.danger{color:var(--warn)}
+.btn.small{padding:5px 10px;font-size:13px}
+.link{background:none;border:0;padding:0;color:var(--go);font-weight:600;cursor:pointer;font-size:13px}
+
+.empty{padding:28px 18px;text-align:center;color:var(--muted)}
+.mail{padding:12px 14px;display:grid;gap:8px}
+.addr{display:grid;grid-template-columns:44px minmax(0,1fr);gap:6px;font-size:14px;align-items:baseline}
+.addr span:first-child{color:var(--muted);font-size:13px}
+.addr span:last-child{overflow-wrap:anywhere;user-select:all}
+.mail input[type=date]{border:1px solid var(--line);border-radius:8px;padding:5px 8px;background:var(--sheet)}
+pre.preview{margin:0;white-space:pre-wrap;font-family:var(--body);font-size:14px;background:var(--sheet-2);border:1px solid var(--line);border-radius:10px;padding:12px 14px;user-select:all;overflow-wrap:anywhere}
+.actions{padding:0 14px 14px}
+.warnline{color:var(--warn);font-size:13px}
+
+.field{display:grid;gap:3px;font-size:13px;color:var(--muted)}
+.field input,.field textarea{border:1px solid var(--line);border-radius:9px;padding:8px 10px;background:var(--sheet);color:var(--ink);font-size:15px;width:100%}
+.form{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:14px}
+.form .full{grid-column:1/-1}
+.days{display:flex;gap:5px;flex-wrap:wrap}
+.days button{border:1px solid var(--line);background:var(--sheet);border-radius:8px;padding:5px 9px;font-size:13px;font-weight:600;cursor:pointer}
+.days button[aria-pressed="true"]{background:var(--go);border-color:var(--go);color:var(--go-ink)}
+.erow{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr) 70px 34px;gap:6px;padding:5px 14px;border-bottom:1px solid var(--line);align-items:center}
+.erow input{border:1px solid var(--line);border-radius:7px;padding:6px 8px;background:var(--sheet);width:100%;min-width:0;font-size:14px}
+.erow.head{font-size:11px;color:var(--muted);padding-block:6px}
+.x{border:0;background:none;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;padding:4px}
+.x.armed{color:var(--warn);font-size:12px;font-weight:700}
+.section-h{font-family:var(--display);font-weight:700;font-size:22px;margin:24px 0 0}
+.note{color:var(--muted);font-size:13px;margin:6px 0 0;max-width:62ch}
+
+#toast{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--ink);color:var(--ground);padding:9px 16px;border-radius:999px;font-weight:600;font-size:14px;z-index:20;max-width:calc(100% - 32px)}
+
+@media (max-width:460px){
+  .row{grid-template-columns:minmax(0,1fr) 68px 58px;padding-inline:10px;gap:6px}
+  .form{grid-template-columns:1fr}
+  .erow{grid-template-columns:minmax(0,1fr) 62px 30px}
+  .erow .ecat{display:none}
+  h1{font-size:28px}
+}
+@media (prefers-reduced-motion:no-preference){.row{transition:background-color .15s}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<datalist id="units"></datalist>
+<div id="toast" hidden></div>
+
+<script>
+(() => {
+const IS_ANDROID = /Android/i.test(navigator.userAgent || "");
+const DAYS = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const UNIT_DEFAULTS = ["cs","ea","lb","#","bunch","flat","box","bag","qt","pt","gal","doz","jar","tub","btl","roll","pack","sleeve","tray","wheel"];
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const clone = o => JSON.parse(JSON.stringify(o ?? {}));
+const app = document.getElementById("app");
+
+const S = {
+  phase: "loading",           // loading | nodb | ready
+  vendors: [], drafts: {}, hist: {},
+  settings: { restaurant: "", signature: "", cc: "", gmail: "" },
+  tab: "order", q: "", open: {}, openedToday: false,
+  editUnit: null, setupOpen: null, armed: null, focus: null,
+};
+const dirty = {};   // dirty[vid][key] = generation, so a snapshot never overwrites unsaved typing
+let gen = 0, db = null;
+
+/* ---------- helpers ---------- */
+const vendor = id => S.vendors.find(v => v.id === id);
+const draft = vid => (S.drafts[vid] ||= { qty: {}, forDate: "", sentAt: "", sentHash: "" });
+const hasQty = s => s !== undefined && s !== null && String(s).trim() !== "" && !/^0+(\.0*)?$/.test(String(s).trim());
+const today = () => new Date().getDay();
+const isoDay = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
+const parseDay = s => { const [y,m,d] = s.split("-").map(Number); return new Date(y, m-1, d); };
+const fmtFor = s => s ? parseDay(s).toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"}) : "";
+const fmtShort = iso => new Date(iso).toLocaleDateString(undefined,{month:"short",day:"numeric"});
+const fmtTime = iso => new Date(iso).toLocaleTimeString(undefined,{hour:"numeric",minute:"2-digit"});
+const splitList = s => String(s||"").split(/[,;\s]+/).map(x => x.trim()).filter(x => x.includes("@"));
+// The sign-off name belongs to whoever is ordering on this device, so it's kept per device.
+let nameCache = null;
+function myName() {
+  if (nameCache === null) { try { nameCache = localStorage.getItem("og:name") || ""; } catch { nameCache = ""; } }
+  return nameCache.trim();
+}
+function setMyName(n) { nameCache = n; try { localStorage.setItem("og:name", n); } catch {} }
+
+function lines(v) {
+  const d = S.drafts[v.id]; if (!d) return [];
+  return v.items.filter(i => hasQty(d.qty[i.id])).map(i => ({ id: i.id, name: i.name, qty: String(d.qty[i.id]).trim(), unit: i.unit || "" }));
+}
+const orderCount = () => S.vendors.filter(v => lines(v).length).length;
+
+function rank(arr) {
+  const score = new Map();
+  arr.forEach((x, idx) => score.set(x, (score.get(x) || 0) + 1 + (arr.length - idx) * 0.01));
+  return [...score.entries()].sort((a,b) => b[1]-a[1]).map(e => e[0]);
+}
+const pastQty = (vid, iid) => (S.hist[vid]?.items?.[iid]) || [];
+function ghostFor(vid, iid, typed) {
+  if (!typed) return "";
+  return rank(pastQty(vid, iid)).find(x => x.startsWith(typed) && x !== typed) || "";
+}
+function allUnits() {
+  const set = new Set();
+  S.vendors.forEach(v => v.items.forEach(i => i.unit && set.add(i.unit)));
+  UNIT_DEFAULTS.forEach(u => set.add(u));
+  return [...set];
+}
+
+/* ---------- writes (one at a time per document) ---------- */
+const chains = {};
+function enqueue(path, fn) {
+  const p = (chains[path] || Promise.resolve()).then(fn).catch(e => { console.error(e); toast(errText(e)); });
+  chains[path] = p; return p;
+}
+function errText(e) {
+  if (e?.code === "quota_exceeded") return "Storage is full. Remove old vendors or items to keep saving.";
+  if (e?.code === "invalid_argument") return "You can view this guide but not change it.";
+  return "Couldn't save that change. Check your connection and try again.";
+}
+const timers = {};
+function markDirty(vid, key) { (dirty[vid] ||= {})[key] = ++gen; }
+function scheduleDraft(vid, wait = 600) { clearTimeout(timers[vid]); timers[vid] = setTimeout(() => saveDraft(vid), wait); }
+function saveDraft(vid) {
+  clearTimeout(timers[vid]);
+  const snap = { ...(dirty[vid] || {}) };
+  return enqueue("drafts/" + vid, async () => {
+    const d = draft(vid);
+    const qty = {}; Object.entries(d.qty).forEach(([k,v]) => { if (String(v).trim() !== "") qty[k] = String(v).trim(); });
+    await db.doc("drafts/" + vid).set({ qty, forDate: d.forDate || "", sentAt: d.sentAt || "", sentHash: d.sentHash || "" });
+    const cur = dirty[vid] || {};
+    Object.entries(snap).forEach(([k,g]) => { if (cur[k] === g) delete cur[k]; });
+  });
+}
+function saveVendor(v) {
+  const { id, ...body } = v;
+  return enqueue("vendors/" + id, () => db.doc("vendors/" + id).set(clone(body)));
+}
+function saveSettings() { return enqueue("settings/main", () => db.doc("settings/main").set(clone(S.settings))); }
+
+/* ---------- state changes ---------- */
+function setQty(vid, iid, val) {
+  const d = draft(vid);
+  if (String(val).trim() === "") delete d.qty[iid]; else d.qty[iid] = val;
+  if (!d.forDate && hasQty(val)) { const t = new Date(); t.setDate(t.getDate()+1); d.forDate = isoDay(t); markDirty(vid, "_meta"); }
+  markDirty(vid, iid);
+  scheduleDraft(vid);
+  // light update, no re-render while typing
+  const row = document.querySelector(`[data-row="${vid}:${iid}"]`);
+  if (row) row.classList.toggle("has", hasQty(val));
+  const n = lines(vendor(vid)).length;
+  const vc = document.getElementById("vc-" + vid); if (vc) vc.innerHTML = vcText(vendor(vid), n);
+  const sc = document.getElementById("sendcount"); if (sc) sc.textContent = orderCount() ? ` (${orderCount()})` : "";
+}
+
+function recordSend(vid) {
+  const v = vendor(vid), d = draft(vid), ls = lines(v);
+  if (!ls.length) return;
+  const hash = JSON.stringify(ls.map(l => [l.id,l.qty,l.unit]));
+  if (d.sentHash === hash) return;                 // same order sent again: nothing new to learn
+  const h = clone(S.hist[vid] || { items: {}, log: [] });
+  h.items ||= {}; h.log ||= [];
+  if (d.sentAt && h.log[0]?.at === d.sentAt) {     // order was edited after sending: replace that entry
+    h.log[0].lines.forEach(l => { const a = h.items[l.id]; if (a && a[0] === l.qty) a.shift(); });
+    h.log.shift();
+  }
+  const at = new Date().toISOString();
+  ls.forEach(l => { h.items[l.id] = [l.qty, ...(h.items[l.id] || [])].slice(0, 12); });
+  h.log = [{ at, forDate: d.forDate || "", lines: ls }, ...h.log].slice(0, 20);
+  S.hist[vid] = h;
+  enqueue("history/" + vid, () => db.doc("history/" + vid).set(h));
+  d.sentAt = at; d.sentHash = hash; markDirty(vid, "_meta"); saveDraft(vid);
+  render();
+}
+
+function repeatLast(vid) {
+  const last = S.hist[vid]?.log?.[0]; if (!last) return;
+  const v = vendor(vid), ids = new Set(v.items.map(i => i.id)), d = draft(vid);
+  last.lines.forEach(l => { if (ids.has(l.id)) { d.qty[l.id] = l.qty; markDirty(vid, l.id); } });
+  d.sentAt = ""; d.sentHash = "";
+  if (!d.forDate) { const t = new Date(); t.setDate(t.getDate()+1); d.forDate = isoDay(t); }
+  markDirty(vid, "_meta"); saveDraft(vid); render();
+  toast(`Filled ${last.lines.length} items from ${fmtShort(last.at)}`);
+}
+
+function newOrder(vid) {
+  S.drafts[vid] = { qty: {}, forDate: "", sentAt: "", sentHash: "" };
+  Object.keys(S.drafts[vid]).forEach(k => markDirty(vid, k));
+  markDirty(vid, "_meta");
+  vendor(vid).items.forEach(i => markDirty(vid, i.id));
+  saveDraft(vid); S.armed = null; render();
+}
+
+/* ---------- message ---------- */
+function message(v) {
+  const d = draft(v.id), ls = lines(v), st = S.settings;
+  const first = (v.contact || "").trim().split(/\s+/)[0];
+  const md = d.forDate ? (() => { const x = parseDay(d.forDate); return `${x.getMonth()+1}/${x.getDate()}`; })() : "";
+  const subject = [st.restaurant || "Order", md].filter(Boolean).join(" ");
+  const who = myName();
+  const body = [
+    first ? `Hi ${first},` : "Hi,",
+    "",
+    d.forDate ? `Please send the following for ${fmtFor(d.forDate)}:` : "Please send the following:",
+    "",
+    ...ls.map(l => `${l.name} – ${l.qty}${l.unit ? " " + l.unit : ""}`),
+    "",
+    who ? "Thank you," : "Thank you",
+    ...(who ? [who] : []),
+  ].join("\n");
+  const to = splitList(v.email);
+  const cc = [...new Set([...splitList(v.cc), ...splitList(st.cc)])].filter(x => !to.includes(x));
+  const p = new URLSearchParams({ view: "cm", fs: "1", to: to.join(","), su: subject, body });
+  if (cc.length) p.set("cc", cc.join(","));
+  if (st.gmail) p.set("authuser", st.gmail);
+  const gmail = "https://mail.google.com/mail/?" + p.toString().replace(/\+/g, "%20");
+  const mailto = `mailto:${to.join(",")}?` + [cc.length ? "cc=" + encodeURIComponent(cc.join(",")) : "", "subject=" + encodeURIComponent(subject), "body=" + encodeURIComponent(body)].filter(Boolean).join("&");
+  return { subject, body, to, cc, gmail, mailto };
+}
+
+async function copy(text, el) {
+  try { await navigator.clipboard.writeText(text); toast("Copied. Paste it into the email body."); return true; }
+  catch {
+    if (el) { const r = document.createRange(); r.selectNodeContents(el); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }
+    toast("Text selected. Press copy to finish."); return false;
+  }
+}
+
+let toastT;
+function toast(msg) { const t = document.getElementById("toast"); t.textContent = msg; t.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => t.hidden = true, 2400); }
+
+/* ---------- render ---------- */
+function vcText(v, n) {
+  const d = S.drafts[v.id];
+  if (d?.sentAt && n) return `<span class="sent">Sent ${fmtTime(d.sentAt)}</span>`;
+  if (n) return `<b>${n}</b> to order`;
+  return S.open[v.id] ? "Hide" : "Show";
+}
+
+function render() {
+  const a = document.activeElement, keepId = a && a.id, s0 = a?.selectionStart, s1 = a?.selectionEnd;
+  document.getElementById("units").innerHTML = allUnits().map(u => `<option value="${esc(u)}">`).join("");
+  app.innerHTML = header() + (S.phase === "loading" ? `<p class="empty">Opening the order guide…</p>`
+    : S.phase === "nodb" ? `<p class="empty">Sign in to claude.ai to open this order guide. It saves your guide and orders to your account.</p>`
+    : !S.vendors.length ? `<p class="empty">No vendors yet. Go to Guide setup and add your first vendor.</p>`
+    : S.tab === "order" ? orderTab() : S.tab === "send" ? sendTab() : setupTab());
+  if (keepId) { const el = document.getElementById(keepId); if (el) { el.focus({ preventScroll: true }); try { if (s0 != null) el.setSelectionRange(s0, s1); } catch {} if (el.dataset.qty !== undefined) onQtyFocus(el); } }
+}
+
+function header() {
+  const n = orderCount(), t = today();
+  const todays = S.vendors.filter(v => (v.days || []).includes(t));
+  return `<div class="top">
+    <div class="brand"><h1>Order guide</h1><span class="sub">${esc(S.settings.restaurant || "")}${S.settings.restaurant ? " · " : ""}${new Date().toLocaleDateString(undefined,{weekday:"long",month:"short",day:"numeric"})}</span></div>
+    <div class="tabs" role="group" aria-label="Sections">
+      <button class="tab" data-act="tab" data-tab="order" aria-pressed="${S.tab==="order"}">Order</button>
+      <button class="tab" data-act="tab" data-tab="send" aria-pressed="${S.tab==="send"}">Send<span id="sendcount">${n ? ` (${n})` : ""}</span></button>
+      <button class="tab" data-act="tab" data-tab="setup" aria-pressed="${S.tab==="setup"}">Guide setup</button>
+    </div>
+    ${S.tab === "order" && S.phase === "ready" ? `
+      <input class="search" id="search" type="search" placeholder="Find an item" autocomplete="off" value="${esc(S.q)}">
+      ${S.q ? "" : `<div class="today">${todays.length ? `Order today: ${todays.map(v => `<button class="chip" data-act="jump" data-v="${v.id}">${esc(v.name)}</button>`).join("")}` : "No regular orders due today."}</div>`}` : ""}
+  </div>`;
+}
+
+function contactBar(v) {
+  const bits = [];
+  if (v.contact) bits.push(`<span>${esc(v.contact)}</span>`);
+  if (v.phone) bits.push(`<span>${esc(v.phone)}${v.noText ? " (no texts)" : ""}</span>`);
+  if (v.email) bits.push(`<span>${esc(v.email)}</span>`);
+  if (v.site) bits.push(`<span>${esc(v.site)}</span>`);
+  if (!bits.length) bits.push(`<span>No contact info yet</span>`);
+  return bits.join("");
+}
+
+function orderTab() {
+  const q = S.q.trim().toLowerCase(), t = today();
+  let out = "";
+  for (const v of S.vendors) {
+    const items = q ? v.items.filter(i => i.name.toLowerCase().includes(q)) : v.items;
+    if (q && !items.length) continue;
+    const open = q ? true : !!S.open[v.id];
+    const due = (v.days || []).includes(t);
+    const n = lines(v).length;
+    const last = S.hist[v.id]?.log?.[0];
+    out += `<section class="vendor${due ? "" : " off"}" id="v-${v.id}">
+      <button class="vhead" data-act="toggle" data-v="${v.id}" aria-expanded="${open}">
+        <div><span class="label">${esc(v.name)}</span><div class="vmeta">${esc(v.schedule || "No schedule set")} · ${v.items.length} items</div></div>
+        <div class="vright" id="vc-${v.id}">${vcText(v, n)}</div>
+      </button>`;
+    if (open) {
+      out += `<div class="sheet"><div class="bar">${contactBar(v)}</div>`;
+      if (!q && last) out += `<div class="bar">Last order ${fmtShort(last.at)}, ${last.lines.length} items <button class="link" data-act="repeat" data-v="${v.id}">Repeat it</button></div>`;
+      if (!items.length) out += `<p class="empty">No items for ${esc(v.name)} yet. Add them in Guide setup.</p>`;
+      const cats = [...new Set(items.map(i => i.category || ""))];
+      for (const c of cats) {
+        if (c) out += `<div class="cat">${esc(c)}</div>`;
+        for (const i of items.filter(x => (x.category || "") === c)) out += rowHtml(v, i);
+      }
+      if (!q && n) out += `<div class="bar"><button class="btn primary small" data-act="tosend" data-v="${v.id}">Review ${esc(v.name)} order</button></div>`;
+      out += `</div>`;
+    }
+    out += `</section>`;
+  }
+  return out || `<p class="empty">Nothing matches “${esc(S.q)}”.</p>`;
+}
+
+function rowHtml(v, i) {
+  const val = S.drafts[v.id]?.qty?.[i.id] ?? "";
+  const editing = S.editUnit === `${v.id}:${i.id}`;
+  return `<div class="row${hasQty(val) ? " has" : ""}" data-row="${v.id}:${i.id}">
+    <div class="iname">${esc(i.name)}</div>
+    <div class="qty"><span class="ghost" aria-hidden="true"></span><input id="q-${v.id}-${i.id}" data-qty data-v="${v.id}" data-i="${i.id}" value="${esc(val)}" inputmode="decimal" autocomplete="off" enterkeyhint="next" aria-label="Quantity, ${esc(i.name)}"></div>
+    ${editing
+      ? `<input class="unitin" id="u-${v.id}-${i.id}" data-unit data-v="${v.id}" data-i="${i.id}" list="units" value="${esc(i.unit || "")}" aria-label="Unit for ${esc(i.name)}" autocomplete="off">`
+      : `<button class="unit${i.unit ? " set" : ""}" data-act="unit" data-v="${v.id}" data-i="${i.id}" aria-label="Unit for ${esc(i.name)}: ${esc(i.unit || "not set")}">${esc(i.unit || "unit")}</button>`}
+  </div>`;
+}
+
+function sendTab() {
+  const list = S.vendors.filter(v => lines(v).length);
+  const nameField = `<div class="sheet" style="margin-top:16px"><div class="form" style="grid-template-columns:1fr">
+    <label class="field">Your name (signs the emails sent from this device)<input id="myname" data-myname value="${esc((myName(), nameCache))}" placeholder="Who's placing the order?" autocomplete="name"></label></div></div>`;
+  if (!list.length) return nameField + `<p class="empty">No orders started. Enter quantities on the Order tab and they'll show up here, ready to email.</p>`;
+  return nameField + list.map(v => {
+    const d = draft(v.id), m = message(v);
+    const armed = S.armed === "new:" + v.id;
+    return `<section class="vendor" id="s-${v.id}">
+      <div class="vhead" style="cursor:default"><div><span class="label">${esc(v.name)}</span><div class="vmeta">${esc(v.schedule || "No schedule set")}</div></div>
+        <div class="vright">${d.sentAt ? `<span class="sent">Sent ${fmtTime(d.sentAt)}</span>` : `<b>${lines(v).length}</b> items`}</div></div>
+      <div class="sheet">
+        <div class="mail">
+          <div class="addr"><span>To</span><span>${m.to.length ? esc(m.to.join(", ")) : `<span class="warnline">No email on file${v.phone ? `. Call ${esc(v.phone)}` : ""}</span>`}</span></div>
+          ${m.cc.length ? `<div class="addr"><span>Cc</span><span>${esc(m.cc.join(", "))}</span></div>` : ""}
+          <div class="addr"><span>For</span><span style="user-select:auto"><input type="date" id="fd-${v.id}" data-fordate data-v="${v.id}" value="${esc(d.forDate)}" aria-label="Delivery date"></span></div>
+          <div class="addr"><span>Subj.</span><span>${esc(m.subject)}</span></div>
+          <pre class="preview" id="pv-${v.id}">${esc(m.body)}</pre>
+        </div>
+        <div class="actions btns">
+          ${m.to.length ? (IS_ANDROID
+            ? `<a class="btn primary" href="${esc(m.mailto)}" data-act="sentvia" data-v="${v.id}">Open in Gmail app</a>`
+            : `<a class="btn primary" href="${esc(m.gmail)}" target="_blank" rel="noopener" data-act="sentvia" data-v="${v.id}">Open in Gmail</a>
+          <a class="btn" href="${esc(m.mailto)}" data-act="sentvia" data-v="${v.id}">Mail app</a>`) : ""}
+          <button class="btn${m.to.length ? "" : " primary"}" data-act="copy" data-v="${v.id}">Copy order</button>
+          <button class="btn danger" data-act="neworder" data-v="${v.id}">${armed ? "Yes, clear this order" : "Start new order"}</button>
+          ${armed ? `<button class="btn" data-act="disarm">Keep it</button>` : ""}
+        </div>
+      </div>
+    </section>`;
+  }).join("") + `<p class="note">Opening Gmail, your mail app, or copying the order logs it as sent. Those quantities become the suggestions next time you order.</p>`;
+}
+
+function setupTab() {
+  const st = S.settings;
+  let out = `<h2 class="section-h">Order emails</h2>
+  <div class="sheet"><div class="form">
+    <label class="field">Restaurant name<input id="st-restaurant" data-setting="restaurant" value="${esc(st.restaurant)}"></label>
+    <label class="field">Gmail address to send from<input id="st-gmail" data-setting="gmail" type="email" placeholder="Optional" value="${esc(st.gmail)}"></label>
+    <label class="field full">Always Cc (every vendor)<input id="st-cc" data-setting="cc" placeholder="chef@…, purchasing@…" value="${esc(st.cc)}"></label>
+    <p class="note full" style="margin:0">Emails go out with the subject “${esc(st.restaurant || "Restaurant")} 10/2” and are signed “Thank you,” plus the name entered on the Send tab.</p>
+  </div></div>
+  <div class="bar btns" style="padding-inline:0;border:0"><a class="btn" href="mailto:?subject=${encodeURIComponent((st.restaurant || "Order") + " test")}&body=${encodeURIComponent("This is a test from the order guide. If you're reading this in the Gmail app, it works.")}">Test the email button</a><span class="note" style="margin:0">Opens a blank test email. Nothing is sent unless you press send.</span></div>
+  <h2 class="section-h">Vendors</h2><p class="note">Order matches your printed guide. Tap a vendor to edit contacts, order days, and items.</p>`;
+  S.vendors.forEach((v, idx) => {
+    const open = S.setupOpen === v.id;
+    out += `<section class="vendor${(v.days||[]).length ? "" : " off"}">
+      <button class="vhead" data-act="setupopen" data-v="${v.id}" aria-expanded="${open}">
+        <div><span class="label">${esc(v.name)}</span><div class="vmeta">${esc(v.email || v.phone || "No contact")} · ${v.items.length} items</div></div>
+        <div class="vright">${open ? "Close" : "Edit"}</div></button>`;
+    if (open) {
+      const cats = [...new Set(v.items.map(i => i.category).filter(Boolean))];
+      out += `<div class="sheet"><div class="form">
+        <label class="field">Vendor name<input id="vf-name-${v.id}" data-vfield="name" data-v="${v.id}" value="${esc(v.name)}"></label>
+        <label class="field">Contact (used in the greeting)<input id="vf-contact-${v.id}" data-vfield="contact" data-v="${v.id}" value="${esc(v.contact)}"></label>
+        <label class="field">Order email<input id="vf-email-${v.id}" data-vfield="email" data-v="${v.id}" type="email" value="${esc(v.email)}"></label>
+        <label class="field">Phone<input id="vf-phone-${v.id}" data-vfield="phone" data-v="${v.id}" value="${esc(v.phone)}"></label>
+        <label class="field full">Cc on this vendor's orders<input id="vf-cc-${v.id}" data-vfield="cc" data-v="${v.id}" placeholder="Rep, accounts, etc." value="${esc(v.cc)}"></label>
+        <label class="field full">Schedule note<input id="vf-schedule-${v.id}" data-vfield="schedule" data-v="${v.id}" value="${esc(v.schedule)}"></label>
+        <div class="field full">Order days (highlighted on the Order tab)<div class="days">${DAYS.map((d,i) => `<button data-act="day" data-v="${v.id}" data-day="${i}" aria-pressed="${(v.days||[]).includes(i)}">${d}</button>`).join("")}</div></div>
+      </div>
+      <div class="erow head"><span>Item</span><span class="ecat">Section</span><span>Unit</span><span></span></div>
+      <datalist id="cats-${v.id}">${cats.map(c => `<option value="${esc(c)}">`).join("")}</datalist>
+      ${v.items.map(i => {
+        const armed = S.armed === `item:${v.id}:${i.id}`;
+        return `<div class="erow">
+          <input id="in-${v.id}-${i.id}" data-ifield="name" data-v="${v.id}" data-i="${i.id}" value="${esc(i.name)}" aria-label="Item name">
+          <input class="ecat" id="ic-${v.id}-${i.id}" data-ifield="category" data-v="${v.id}" data-i="${i.id}" list="cats-${v.id}" value="${esc(i.category)}" aria-label="Section">
+          <input id="iu-${v.id}-${i.id}" data-ifield="unit" data-v="${v.id}" data-i="${i.id}" list="units" value="${esc(i.unit)}" aria-label="Unit" autocomplete="off">
+          <button class="x${armed ? " armed" : ""}" data-act="delitem" data-v="${v.id}" data-i="${i.id}" aria-label="Remove ${esc(i.name)}">${armed ? "Remove" : "×"}</button>
+        </div>`;}).join("")}
+      <div class="bar"><input id="add-${v.id}" class="search" style="margin:0;flex:1" placeholder="Add an item to ${esc(v.name)}" data-additem data-v="${v.id}"><button class="btn" data-act="additem" data-v="${v.id}">Add</button></div>
+      <div class="bar btns">
+        <button class="btn small" data-act="move" data-v="${v.id}" data-dir="-1" ${idx ? "" : "disabled"}>Move up</button>
+        <button class="btn small" data-act="move" data-v="${v.id}" data-dir="1" ${idx < S.vendors.length-1 ? "" : "disabled"}>Move down</button>
+        <button class="btn small danger" data-act="delvendor" data-v="${v.id}">${S.armed === "vendor:" + v.id ? `Yes, delete ${esc(v.name)}` : "Delete vendor"}</button>
+      </div></div>`;
+    }
+    out += `</section>`;
+  });
+  out += `<h2 class="section-h">Backup</h2><p class="note">Your guide and order history are saved on this phone. Save a backup file now and then, so nothing is lost if the app or browser data gets cleared.</p>
+  <div class="bar btns" style="padding-inline:0;border:0"><button class="btn" data-act="backup">Save backup file</button><label class="btn" for="restorefile">Restore from backup</label><input type="file" id="restorefile" accept=".json,application/json" hidden></div>`;
+  out += `<div class="bar" style="padding-inline:0;border:0;margin-top:14px"><input id="newvendor" class="search" style="margin:0;flex:1" placeholder="New vendor name"><button class="btn" data-act="addvendor">Add vendor</button></div>`;
+  return out;
+}
+
+/* ---------- suggestion bar & ghost ---------- */
+let suggEl = null;
+function onQtyFocus(input) {
+  const { v, i } = input.dataset;
+  S.focus = `${v}:${i}`;
+  updGhost(input);
+  const past = rank(pastQty(v, i)).slice(0, 4);
+  const it = vendor(v)?.items.find(x => x.id === i);
+  if (suggEl) suggEl.remove(); suggEl = null;
+  if (!past.length) return;
+  suggEl = document.createElement("div");
+  suggEl.className = "sugg";
+  suggEl.innerHTML = `Usual:` + past.map(p => `<button type="button" data-act="pick" data-v="${v}" data-i="${i}" data-val="${esc(p)}">${esc(p)}${it?.unit ? " " + esc(it.unit) : ""}</button>`).join("");
+  input.closest(".row").appendChild(suggEl);
+}
+function updGhost(input) {
+  const g = ghostFor(input.dataset.v, input.dataset.i, input.value);
+  const span = input.parentElement.querySelector(".ghost");
+  span.innerHTML = g ? `<span class="t">${esc(input.value)}</span>${esc(g.slice(input.value.length))}` : "";
+  input.dataset.ghost = g;
+}
+function acceptGhost(input) {
+  const g = input.dataset.ghost; if (!g) return false;
+  input.value = g; setQty(input.dataset.v, input.dataset.i, g); updGhost(input); return true;
+}
+function nextQty(input) {
+  const all = [...document.querySelectorAll("input[data-qty]")];
+  const n = all[all.indexOf(input) + 1];
+  if (n) { n.focus(); n.select(); } else input.blur();
+}
+
+/* ---------- events ---------- */
+app.addEventListener("pointerdown", e => { if (e.target.closest(".sugg button")) e.preventDefault(); });
+
+app.addEventListener("click", e => {
+  const b = e.target.closest("[data-act]"); if (!b) return;
+  const { act, v, i } = b.dataset;
+  if (act !== "delitem" && act !== "delvendor" && act !== "neworder" && S.armed) S.armed = null;
+  switch (act) {
+    case "tab": S.tab = b.dataset.tab; S.editUnit = null; render(); scrollTo({ top: 0 }); break;
+    case "toggle": S.open[v] = !S.open[v]; render(); break;
+    case "jump": S.open[v] = true; render(); document.getElementById("v-" + v)?.scrollIntoView({ block: "start" }); break;
+    case "repeat": repeatLast(v); break;
+    case "tosend": S.tab = "send"; render(); document.getElementById("s-" + v)?.scrollIntoView({ block: "start" }); break;
+    case "unit": S.editUnit = `${v}:${i}`; render(); { const el = document.getElementById(`u-${v}-${i}`); el?.focus(); el?.select(); } break;
+    case "pick": {
+      const inp = document.getElementById(`q-${v}-${i}`);
+      inp.value = b.dataset.val; setQty(v, i, b.dataset.val); nextQty(inp); break;
+    }
+    case "sentvia": setTimeout(() => recordSend(v), 0); break;   // let the link open first
+    case "copy": { const m = message(vendor(v)); copy(m.body, document.getElementById("pv-" + v)).then(() => recordSend(v)); break; }
+    case "neworder": if (S.armed === "new:" + v) newOrder(v); else { S.armed = "new:" + v; render(); } break;
+    case "disarm": S.armed = null; render(); break;
+    case "setupopen": S.setupOpen = S.setupOpen === v ? null : v; render(); break;
+    case "day": { const vd = vendor(v), d = Number(b.dataset.day); vd.days = (vd.days||[]).includes(d) ? vd.days.filter(x => x !== d) : [...(vd.days||[]), d].sort(); saveVendor(vd); render(); break; }
+    case "additem": addItem(v); break;
+    case "delitem": {
+      const key = `item:${v}:${i}`;
+      if (S.armed !== key) { S.armed = key; render(); break; }
+      const vd = vendor(v); vd.items = vd.items.filter(x => x.id !== i); S.armed = null; saveVendor(vd); render(); break;
+    }
+    case "move": {
+      const idx = S.vendors.findIndex(x => x.id === v), j = idx + Number(b.dataset.dir);
+      if (j < 0 || j >= S.vendors.length) break;
+      [S.vendors[idx], S.vendors[j]] = [S.vendors[j], S.vendors[idx]];
+      S.vendors.forEach((x, k) => { if (x.order !== k) { x.order = k; saveVendor(x); } });
+      render(); break;
+    }
+    case "delvendor": {
+      if (S.armed !== "vendor:" + v) { S.armed = "vendor:" + v; render(); break; }
+      S.vendors = S.vendors.filter(x => x.id !== v); S.armed = null; S.setupOpen = null;
+      enqueue("vendors/" + v, () => db.doc("vendors/" + v).delete());
+      enqueue("drafts/" + v, () => db.doc("drafts/" + v).delete());
+      enqueue("history/" + v, () => db.doc("history/" + v).delete());
+      render(); break;
+    }
+    case "backup": {
+      const blob = new Blob([db.exportAll()], { type: "application/json" });
+      const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+      a.download = `order-guide-backup-${isoDay(new Date())}.json`; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 4000); toast("Backup saved to your Downloads."); break;
+    }
+    case "addvendor": {
+      const inp = document.getElementById("newvendor"), name = inp.value.trim(); if (!name) { inp.focus(); break; }
+      const id = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 24) + "-" + Math.random().toString(36).slice(2, 6);
+      const nv = { id, name, contact: "", email: "", cc: "", phone: "", schedule: "", days: [], order: S.vendors.length, items: [] };
+      S.vendors.push(nv); S.setupOpen = id; saveVendor(nv); render(); break;
+    }
+  }
+});
+
+function addItem(vid) {
+  const inp = document.getElementById("add-" + vid), name = inp.value.trim(); if (!name) { inp.focus(); return; }
+  const vd = vendor(vid), cat = vd.items.length ? vd.items[vd.items.length-1].category || "" : "";
+  vd.items.push({ id: "i" + Date.now().toString(36) + Math.random().toString(36).slice(2,4), name, category: cat, unit: "" });
+  saveVendor(vd); render(); document.getElementById("add-" + vid)?.focus();
+}
+
+app.addEventListener("input", e => {
+  const t = e.target;
+  if (t.id === "search") { S.q = t.value; render(); return; }
+  if (t.dataset.myname !== undefined) { setMyName(t.value); render(); return; }
+  if (t.dataset.qty !== undefined) { setQty(t.dataset.v, t.dataset.i, t.value); updGhost(t); }
+});
+
+app.addEventListener("change", e => {
+  const t = e.target, { v, i } = t.dataset;
+  if (t.id === "restorefile" && t.files[0]) {
+    t.files[0].text().then(txt => { try { db.importAll(txt); S.drafts = {}; S.hist = {}; toast("Backup restored."); } catch { toast("That file isn't an order guide backup."); } });
+    t.value = ""; return;
+  }
+  if (t.dataset.fordate !== undefined) { const d = draft(v); d.forDate = t.value; markDirty(v, "_meta"); saveDraft(v); render(); return; }
+  if (t.dataset.setting) { S.settings[t.dataset.setting] = t.value.trim(); saveSettings(); return; }
+  if (t.dataset.vfield) { const vd = vendor(v); vd[t.dataset.vfield] = t.value.trim(); saveVendor(vd); return; }
+  if (t.dataset.ifield) { const vd = vendor(v), it = vd.items.find(x => x.id === i); it[t.dataset.ifield] = t.value.trim(); saveVendor(vd); return; }
+  if (t.dataset.unit !== undefined) commitUnit(t);
+});
+
+function commitUnit(t) {
+  if (S.editUnit !== `${t.dataset.v}:${t.dataset.i}`) return;
+  const vd = vendor(t.dataset.v), it = vd.items.find(x => x.id === t.dataset.i);
+  S.editUnit = null;
+  if ((it.unit || "") !== t.value.trim()) { it.unit = t.value.trim(); saveVendor(vd); }
+  render();
+}
+
+app.addEventListener("focusin", e => { if (e.target.dataset.qty !== undefined) onQtyFocus(e.target); });
+app.addEventListener("focusout", e => {
+  const t = e.target;
+  if (t.dataset.qty !== undefined) {
+    t.parentElement.querySelector(".ghost").innerHTML = ""; t.dataset.ghost = "";
+    setTimeout(() => { if (suggEl && !suggEl.parentElement?.contains(document.activeElement)) { suggEl.remove(); suggEl = null; } }, 0);
+    if (dirty[t.dataset.v]) saveDraft(t.dataset.v);
+  }
+  if (t.dataset.unit !== undefined) setTimeout(() => commitUnit(t), 0);
+});
+
+app.addEventListener("keydown", e => {
+  const t = e.target;
+  if (t.dataset.qty !== undefined) {
+    if (e.key === "Tab" && !e.shiftKey && t.dataset.ghost) { acceptGhost(t); }
+    else if (e.key === "ArrowRight" && t.selectionStart === t.value.length && t.dataset.ghost) { e.preventDefault(); acceptGhost(t); }
+    else if (e.key === "Enter") { e.preventDefault(); acceptGhost(t); nextQty(t); }
+    else if (e.key === "Escape") { t.blur(); }
+  }
+  if (t.dataset.unit !== undefined && (e.key === "Enter" || e.key === "Escape")) { e.preventDefault(); if (e.key === "Escape") { S.editUnit = null; render(); } else commitUnit(t); }
+  if (t.dataset.additem !== undefined && e.key === "Enter") { e.preventDefault(); addItem(t.dataset.v); }
+  if (t.id === "newvendor" && e.key === "Enter") { e.preventDefault(); document.querySelector('[data-act="addvendor"]').click(); }
+});
+
+/* ---------- data ---------- */
+function openToday() {
+  if (S.openedToday) return; S.openedToday = true;
+  S.vendors.forEach(v => { if ((v.days || []).includes(today()) || lines(v).length) S.open[v.id] = true; });
+}
+function mergeDraft(vid, server) {
+  const local = draft(vid), dk = dirty[vid] || {};
+  const sq = server?.qty || {};
+  const keys = new Set([...Object.keys(local.qty), ...Object.keys(sq)]);
+  keys.forEach(k => { if (dk[k] === undefined) { if (sq[k] !== undefined) local.qty[k] = sq[k]; else delete local.qty[k]; } });
+  if (dk._meta === undefined) { local.forDate = server?.forDate || ""; local.sentAt = server?.sentAt || ""; local.sentHash = server?.sentHash || ""; }
+}
+const softRender = () => { if (S.editUnit) return; render(); };
+
+
+/* ---------- on-device storage (same shape as the claude.ai version, so syncing can be added later) ---------- */
+const SEED_VENDORS = {"peterson": {"name": "Peterson", "contact": "", "phone": "1-800-735-0313 ext 303", "email": "", "cc": "", "schedule": "Mon for Tue", "days": [1], "order": 4, "items": [{"id": "peterson-0", "name": "prosciutto di parma", "category": "", "unit": ""}]}, "hopfrog": {"name": "Hop Frog", "contact": "", "phone": "", "email": "", "cc": "", "schedule": "", "days": [], "order": 12, "items": [{"id": "hopfrog-0", "name": "greens", "category": "", "unit": ""}]}, "corsican": {"name": "Corsican", "contact": "", "phone": "", "email": "olivierboye@yahoo.com", "cc": "", "schedule": "Special order", "days": [], "order": 19, "items": []}, "m2": {"name": "M2", "contact": "Matthew", "phone": "206-427-9566", "email": "", "cc": "", "schedule": "", "days": [], "order": 8, "items": []}, "pfi": {"name": "PFI", "contact": "Eric", "phone": "206-308-5997", "email": "erich@pacificfoodimporters.com", "cc": "", "schedule": "Mon – Fri", "days": [1, 2, 3, 4, 5], "order": 5, "items": [{"id": "pfi-0", "name": "mortadella", "category": "", "unit": ""}, {"id": "pfi-1", "name": "water, sparkling Lurisia 1000ml", "category": "", "unit": ""}, {"id": "pfi-2", "name": "guanciale", "category": "", "unit": ""}]}, "crown": {"name": "Crown", "contact": "", "phone": "", "email": "", "cc": "", "schedule": "Special order", "days": [], "order": 20, "items": [{"id": "crown-0", "name": "parmigiano", "category": "", "unit": ""}, {"id": "crown-1", "name": "extra virgin olive oil, basso", "category": "", "unit": ""}]}, "herkimer": {"name": "Herkimer Coffee", "contact": "", "phone": "", "email": "wholesale@herkimercoffee.com", "cc": "", "schedule": "Wed for Fri", "days": [3], "order": 13, "items": [{"id": "herkimer-0", "name": "ground, decaf espresso blend", "category": "", "unit": ""}, {"id": "herkimer-1", "name": "ground, drip", "category": "", "unit": ""}, {"id": "herkimer-2", "name": "ground, espresso blend", "category": "", "unit": ""}, {"id": "herkimer-3", "name": "whole bean, espresso (PDR)", "category": "", "unit": ""}, {"id": "herkimer-4", "name": "whole bean, drip (stuart) 1#", "category": "", "unit": ""}]}, "localroots": {"name": "Local Roots", "contact": "", "phone": "", "email": "", "cc": "", "schedule": "Special order", "days": [], "order": 15, "items": []}, "merlino": {"name": "Merlino", "contact": "", "phone": "206-723-4700", "email": "sales@merlino.com", "cc": "", "schedule": "Sun for Mon, Wed for Thu", "days": [0, 3], "order": 3, "items": [{"id": "merlino-0", "name": "almond meal", "category": "Kitchen", "unit": ""}, {"id": "merlino-1", "name": "anchovies, recca", "category": "Kitchen", "unit": ""}, {"id": "merlino-2", "name": "beans, garbanzo", "category": "Kitchen", "unit": ""}, {"id": "merlino-3", "name": "baking powder", "category": "Kitchen", "unit": ""}, {"id": "merlino-4", "name": "baking soda", "category": "Kitchen", "unit": ""}, {"id": "merlino-5", "name": "calabrian chilies", "category": "Kitchen", "unit": ""}, {"id": "merlino-6", "name": "capers, large salted", "category": "Kitchen", "unit": ""}, {"id": "merlino-7", "name": "cheese, burrata", "category": "Kitchen", "unit": ""}, {"id": "merlino-8", "name": "cheese, cotija (family)", "category": "Kitchen", "unit": ""}, {"id": "merlino-9", "name": "cheese, goat", "category": "Kitchen", "unit": ""}, {"id": "merlino-10", "name": "cheese, parmigiano", "category": "Kitchen", "unit": ""}, {"id": "merlino-11", "name": "cheese, provolone", "category": "Kitchen", "unit": ""}, {"id": "merlino-12", "name": "cheese, ricotta", "category": "Kitchen", "unit": ""}, {"id": "merlino-13", "name": "cheese, taleggio", "category": "Kitchen", "unit": ""}, {"id": "merlino-14", "name": "cherries, luxardo", "category": "Kitchen", "unit": ""}, {"id": "merlino-15", "name": "chocolate, dark 70%", "category": "Kitchen", "unit": ""}, {"id": "merlino-16", "name": "chocolate, gianduja", "category": "Kitchen", "unit": ""}, {"id": "merlino-17", "name": "cocoa powder", "category": "Kitchen", "unit": ""}, {"id": "merlino-18", "name": "cornstarch", "category": "Kitchen", "unit": ""}, {"id": "merlino-19", "name": "dairy: butter, plugra", "category": "Kitchen", "unit": ""}, {"id": "merlino-20", "name": "dairy: buttermilk", "category": "Kitchen", "unit": ""}, {"id": "merlino-21", "name": "dairy: cream", "category": "Kitchen", "unit": ""}, {"id": "merlino-22", "name": "dairy: cream cheese", "category": "Kitchen", "unit": ""}, {"id": "merlino-23", "name": "dairy: mascarpone", "category": "Kitchen", "unit": ""}, {"id": "merlino-24", "name": "dairy: milk", "category": "Kitchen", "unit": ""}, {"id": "merlino-25", "name": "dairy: sour cream", "category": "Kitchen", "unit": ""}, {"id": "merlino-26", "name": "dijon", "category": "Kitchen", "unit": ""}, {"id": "merlino-27", "name": "flour, smalls AP", "category": "Kitchen", "unit": ""}, {"id": "merlino-28", "name": "flour, cake", "category": "Kitchen", "unit": ""}, {"id": "merlino-29", "name": "flour, caputo 00 pasta", "category": "Kitchen", "unit": ""}, {"id": "merlino-30", "name": "flour, high protein whole wheat 5#", "category": "Kitchen", "unit": ""}, {"id": "merlino-31", "name": "flour, smalls bread", "category": "Kitchen", "unit": ""}, {"id": "merlino-32", "name": "flour, rye 5#", "category": "Kitchen", "unit": ""}, {"id": "merlino-33", "name": "flour, semolina", "category": "Kitchen", "unit": ""}, {"id": "merlino-34", "name": "gelatin, silver sheets", "category": "Kitchen", "unit": ""}, {"id": "merlino-35", "name": "glucose syrup", "category": "Kitchen", "unit": ""}, {"id": "merlino-36", "name": "honey, clover", "category": "Kitchen", "unit": ""}, {"id": "merlino-37", "name": "nuts: almonds", "category": "Kitchen", "unit": ""}, {"id": "merlino-38", "name": "nuts: hazelnuts", "category": "Kitchen", "unit": ""}, {"id": "merlino-39", "name": "nuts: pine nuts", "category": "Kitchen", "unit": ""}, {"id": "merlino-40", "name": "nuts: walnuts", "category": "Kitchen", "unit": ""}, {"id": "merlino-41", "name": "oil, canola", "category": "Kitchen", "unit": ""}, {"id": "merlino-42", "name": "olive oil, pure", "category": "Kitchen", "unit": ""}, {"id": "merlino-43", "name": "olives, castelvetrano pitted", "category": "Kitchen", "unit": ""}, {"id": "merlino-44", "name": "olives, castelvetrano w/ pits", "category": "Kitchen", "unit": ""}, {"id": "merlino-45", "name": "olives, cerignola, green", "category": "Kitchen", "unit": ""}, {"id": "merlino-46", "name": "olives, cerignola, red", "category": "Kitchen", "unit": ""}, {"id": "merlino-47", "name": "rice, acquerello", "category": "Kitchen", "unit": ""}, {"id": "merlino-48", "name": "rice, niko niko", "category": "Kitchen", "unit": ""}, {"id": "merlino-49", "name": "salt, Alaska", "category": "Kitchen", "unit": ""}, {"id": "merlino-50", "name": "salt, kosher", "category": "Kitchen", "unit": ""}, {"id": "merlino-51", "name": "salumi: toscano", "category": "Kitchen", "unit": ""}, {"id": "merlino-52", "name": "sesame seeds", "category": "Kitchen", "unit": ""}, {"id": "merlino-53", "name": "spice: allspice", "category": "Kitchen", "unit": ""}, {"id": "merlino-54", "name": "spice: bay leaves, turkish", "category": "Kitchen", "unit": ""}, {"id": "merlino-55", "name": "spice: black pepper, whole tellicherry", "category": "Kitchen", "unit": ""}, {"id": "merlino-56", "name": "spice: cayenne", "category": "Kitchen", "unit": ""}, {"id": "merlino-57", "name": "spice: chili flake", "category": "Kitchen", "unit": ""}, {"id": "merlino-58", "name": "spice: cinnamon, true", "category": "Kitchen", "unit": ""}, {"id": "merlino-59", "name": "spice: clove", "category": "Kitchen", "unit": ""}, {"id": "merlino-60", "name": "spice: fennel seed, whole", "category": "Kitchen", "unit": ""}, {"id": "merlino-61", "name": "spice: ginger, ground", "category": "Kitchen", "unit": ""}, {"id": "merlino-62", "name": "spice: juniper berries", "category": "Kitchen", "unit": ""}, {"id": "merlino-63", "name": "spice: nutmeg, whole", "category": "Kitchen", "unit": ""}, {"id": "merlino-64", "name": "sugar, baker's lg bag", "category": "Kitchen", "unit": ""}, {"id": "merlino-65", "name": "sugar, brown", "category": "Kitchen", "unit": ""}, {"id": "merlino-66", "name": "sugar, demerara", "category": "Kitchen", "unit": ""}, {"id": "merlino-67", "name": "sugar, muscovado", "category": "Kitchen", "unit": ""}, {"id": "merlino-68", "name": "sugar, powdered", "category": "Kitchen", "unit": ""}, {"id": "merlino-69", "name": "tomato paste", "category": "Kitchen", "unit": ""}, {"id": "merlino-70", "name": "tomatoes, bianco", "category": "Kitchen", "unit": ""}, {"id": "merlino-71", "name": "tortillas, corn", "category": "Kitchen", "unit": ""}, {"id": "merlino-72", "name": "uno stabilizer", "category": "Kitchen", "unit": ""}, {"id": "merlino-73", "name": "vanilla beans", "category": "Kitchen", "unit": ""}, {"id": "merlino-74", "name": "vegalene", "category": "Kitchen", "unit": ""}, {"id": "merlino-75", "name": "vinegar, distilled", "category": "Kitchen", "unit": ""}, {"id": "merlino-76", "name": "yeast, fresh", "category": "Kitchen", "unit": ""}, {"id": "merlino-77", "name": "yeast, instant", "category": "Kitchen", "unit": ""}, {"id": "merlino-78", "name": "bleach", "category": "Dry goods", "unit": ""}, {"id": "merlino-79", "name": "butcher twine", "category": "Dry goods", "unit": ""}, {"id": "merlino-80", "name": "cheesecloth", "category": "Dry goods", "unit": ""}, {"id": "merlino-81", "name": "foil", "category": "Dry goods", "unit": ""}, {"id": "merlino-82", "name": "garbage bags, 13 gallon", "category": "Dry goods", "unit": ""}, {"id": "merlino-83", "name": "garbage bags, 55 gallon", "category": "Dry goods", "unit": ""}, {"id": "merlino-84", "name": "garbage bags, eco 30 x 39", "category": "Dry goods", "unit": ""}, {"id": "merlino-85", "name": "garbage bags, eco 48 x 60", "category": "Dry goods", "unit": ""}, {"id": "merlino-86", "name": "gloves: large", "category": "Dry goods", "unit": ""}, {"id": "merlino-87", "name": "gloves: medium", "category": "Dry goods", "unit": ""}, {"id": "merlino-88", "name": "gloves: small", "category": "Dry goods", "unit": ""}, {"id": "merlino-89", "name": "gloves: xl", "category": "Dry goods", "unit": ""}, {"id": "merlino-90", "name": "green scrubbies", "category": "Dry goods", "unit": ""}, {"id": "merlino-91", "name": "hand soap, dial", "category": "Dry goods", "unit": ""}, {"id": "merlino-92", "name": "laundry soap", "category": "Dry goods", "unit": ""}, {"id": "merlino-93", "name": "mineral oil", "category": "Dry goods", "unit": ""}, {"id": "merlino-94", "name": "oven cleaner", "category": "Dry goods", "unit": ""}, {"id": "merlino-95", "name": "paper towel, en motion rounds", "category": "Dry goods", "unit": ""}, {"id": "merlino-96", "name": "paper towels, multifold", "category": "Dry goods", "unit": ""}, {"id": "merlino-97", "name": "parchment paper", "category": "Dry goods", "unit": ""}, {"id": "merlino-98", "name": "patty paper", "category": "Dry goods", "unit": ""}, {"id": "merlino-99", "name": "piping bags", "category": "Dry goods", "unit": ""}, {"id": "merlino-100", "name": "plastic wrap 18in / 12in", "category": "Dry goods", "unit": ""}, {"id": "merlino-101", "name": "portioning bags", "category": "Dry goods", "unit": ""}, {"id": "merlino-102", "name": "solo white vent lids and cups", "category": "Dry goods", "unit": ""}, {"id": "merlino-103", "name": "stainless steel scrubbies", "category": "Dry goods", "unit": ""}, {"id": "merlino-104", "name": "togo, bags large", "category": "Dry goods", "unit": ""}, {"id": "merlino-105", "name": "togo, bags small", "category": "Dry goods", "unit": ""}, {"id": "merlino-106", "name": "togo, boxes, large #3", "category": "Dry goods", "unit": ""}, {"id": "merlino-107", "name": "togo, boxes, small #1", "category": "Dry goods", "unit": ""}, {"id": "merlino-108", "name": "togo, compostable 2 oz ramekins", "category": "Dry goods", "unit": ""}, {"id": "merlino-109", "name": "togo, compostable 2 oz ramekin lids", "category": "Dry goods", "unit": ""}, {"id": "merlino-110", "name": "togo, plastic deli cup lids", "category": "Dry goods", "unit": ""}, {"id": "merlino-111", "name": "togo, plastic pint deli cups", "category": "Dry goods", "unit": ""}, {"id": "merlino-112", "name": "toilet paper", "category": "Dry goods", "unit": ""}, {"id": "merlino-113", "name": "zip lock bag, 1 gallon", "category": "Dry goods", "unit": ""}, {"id": "merlino-114", "name": "zip lock bag, 1/2 gallon", "category": "Dry goods", "unit": ""}, {"id": "merlino-115", "name": "agave syrup", "category": "FOH", "unit": ""}, {"id": "merlino-116", "name": "bamboo paddle picks, 4.5\" 100 ct", "category": "FOH", "unit": ""}, {"id": "merlino-117", "name": "bar straws, 5.25\"", "category": "FOH", "unit": ""}, {"id": "merlino-118", "name": "bar straws, 7.75\"", "category": "FOH", "unit": ""}, {"id": "merlino-119", "name": "cherries, amarena", "category": "FOH", "unit": ""}, {"id": "merlino-120", "name": "citric acid", "category": "FOH", "unit": ""}, {"id": "merlino-121", "name": "club soda", "category": "FOH", "unit": ""}, {"id": "merlino-122", "name": "maple syrup", "category": "FOH", "unit": ""}, {"id": "merlino-123", "name": "mexican coke", "category": "FOH", "unit": ""}, {"id": "merlino-124", "name": "POM juice", "category": "FOH", "unit": ""}, {"id": "merlino-125", "name": "sanbitters", "category": "FOH", "unit": ""}, {"id": "merlino-126", "name": "sugar cubes, organic brown", "category": "FOH", "unit": ""}, {"id": "merlino-127", "name": "sugar cubes, organic white", "category": "FOH", "unit": ""}, {"id": "merlino-128", "name": "water, sparkling", "category": "FOH", "unit": ""}, {"id": "merlino-129", "name": "water, still", "category": "FOH", "unit": ""}]}, "tonnemaker": {"name": "Tonnemaker", "contact": "", "phone": "", "email": "", "cc": "", "schedule": "By Sun for Wed", "days": [0], "order": 14, "items": []}, "foodhub": {"name": "Food Hub (Foraged and Found)", "contact": "", "phone": "", "email": "", "cc": "", "schedule": "Order Sun for Tue, Tue for Fri · order at pugetsoundfoodhub.com", "days": [0, 2], "order": 2, "items": [{"id": "foodhub-0", "name": "chanterelles, yellow", "category": "", "unit": ""}, {"id": "foodhub-1", "name": "huckleberries", "category": "", "unit": ""}, {"id": "foodhub-2", "name": "wild mix", "category": "", "unit": ""}]}, "raindog": {"name": "Rain Dog Farm", "contact": "", "phone": "206-949-7505", "email": "raindogfarm.wa@gmail.com", "cc": "", "schedule": "Special order", "days": [], "order": 16, "items": []}, "modernist": {"name": "Modernist Pantry", "contact": "", "phone": "", "email": "", "cc": "", "schedule": "Special order", "days": [], "order": 17, "items": [{"id": "modernist-0", "name": "polenta (anson mills)", "category": "", "unit": ""}]}, "pmc": {"name": "PMC", "contact": "Sean So", "phone": "206-661-4666", "email": "meatme@preservemeat.com", "cc": "", "schedule": "", "days": [], "order": 9, "items": [{"id": "pmc-0", "name": "beef, bavette", "category": "", "unit": ""}, {"id": "pmc-1", "name": "beef, chuck", "category": "", "unit": ""}, {"id": "pmc-2", "name": "beef, short rib", "category": "", "unit": ""}, {"id": "pmc-3", "name": "duck, bones", "category": "", "unit": ""}, {"id": "pmc-4", "name": "duck, legs", "category": "", "unit": ""}, {"id": "pmc-5", "name": "duck, wings", "category": "", "unit": ""}, {"id": "pmc-6", "name": "pork, butt", "category": "", "unit": ""}]}, "corfini": {"name": "Corfini", "contact": "", "phone": "206-937-3141", "email": "orders@corfinigourmet.com", "cc": "", "schedule": "Saturday delivery available", "days": [], "order": 6, "items": [{"id": "corfini-0", "name": "chicken thighs, bone in", "category": "", "unit": ""}], "noText": true}, "nicky": {"name": "Nicky USA", "contact": "Tony Flanagan", "phone": "206-649-8624", "email": "seattle@nickyusa.com", "cc": "", "schedule": "Mon – Fri", "days": [1, 2, 3, 4, 5], "order": 7, "items": [{"id": "nicky-0", "name": "rabbit", "category": "", "unit": ""}, {"id": "nicky-1", "name": "caul fat", "category": "", "unit": ""}]}, "caviar": {"name": "Seattle Caviar", "contact": "", "phone": "206-323-3005", "email": "", "cc": "", "schedule": "Special order", "days": [], "order": 18, "items": [{"id": "caviar-0", "name": "prawns (ask Stuart)", "category": "", "unit": ""}]}, "franks": {"name": "Frank's Produce", "contact": "", "phone": "206-624-9754", "email": "order@franksproduce.net", "cc": "", "schedule": "Every day but Sunday", "days": [1, 2, 3, 4, 5, 6], "order": 0, "items": [{"id": "franks-0", "name": "apples", "category": "", "unit": ""}, {"id": "franks-1", "name": "arugula", "category": "", "unit": ""}, {"id": "franks-2", "name": "carrots", "category": "", "unit": ""}, {"id": "franks-3", "name": "cauliflower", "category": "", "unit": ""}, {"id": "franks-4", "name": "celery", "category": "", "unit": ""}, {"id": "franks-5", "name": "citrus: blood orange (bar)", "category": "", "unit": ""}, {"id": "franks-6", "name": "citrus: grapefruit, ruby red", "category": "", "unit": ""}, {"id": "franks-7", "name": "citrus: lemons", "category": "", "unit": ""}, {"id": "franks-8", "name": "citrus: lime", "category": "", "unit": ""}, {"id": "franks-9", "name": "citrus: navel orange", "category": "", "unit": ""}, {"id": "franks-10", "name": "corn", "category": "", "unit": ""}, {"id": "franks-11", "name": "cucumber, english", "category": "", "unit": ""}, {"id": "franks-12", "name": "eggplant", "category": "", "unit": ""}, {"id": "franks-13", "name": "eggs, organic", "category": "", "unit": ""}, {"id": "franks-14", "name": "endive", "category": "", "unit": ""}, {"id": "franks-15", "name": "fennel", "category": "", "unit": ""}, {"id": "franks-16", "name": "figs", "category": "", "unit": ""}, {"id": "franks-17", "name": "garlic", "category": "", "unit": ""}, {"id": "franks-18", "name": "ginger", "category": "", "unit": ""}, {"id": "franks-19", "name": "grapes, red", "category": "", "unit": ""}, {"id": "franks-20", "name": "green beans", "category": "", "unit": ""}, {"id": "franks-21", "name": "herbs: basil", "category": "", "unit": ""}, {"id": "franks-22", "name": "herbs: chives", "category": "", "unit": ""}, {"id": "franks-23", "name": "herbs: cilantro", "category": "", "unit": ""}, {"id": "franks-24", "name": "herbs: marjoram", "category": "", "unit": ""}, {"id": "franks-25", "name": "herbs: mint", "category": "", "unit": ""}, {"id": "franks-26", "name": "herbs: oregano", "category": "", "unit": ""}, {"id": "franks-27", "name": "herbs: parsley", "category": "", "unit": ""}, {"id": "franks-28", "name": "herbs: rosemary", "category": "", "unit": ""}, {"id": "franks-29", "name": "herbs: sage", "category": "", "unit": ""}, {"id": "franks-30", "name": "herbs: thyme", "category": "", "unit": ""}, {"id": "franks-31", "name": "lacinato kale", "category": "", "unit": ""}, {"id": "franks-32", "name": "lettuce, little gem", "category": "", "unit": ""}, {"id": "franks-33", "name": "lettuce, mesclun mix", "category": "", "unit": ""}, {"id": "franks-34", "name": "melons, heirloom", "category": "", "unit": ""}, {"id": "franks-35", "name": "mushrooms, crimini", "category": "", "unit": ""}, {"id": "franks-36", "name": "onion, red", "category": "", "unit": ""}, {"id": "franks-37", "name": "onion, yellow", "category": "", "unit": ""}, {"id": "franks-38", "name": "peppers, bell", "category": "", "unit": ""}, {"id": "franks-39", "name": "plums, italian", "category": "", "unit": ""}, {"id": "franks-40", "name": "potatoes, russet", "category": "", "unit": ""}, {"id": "franks-41", "name": "potatoes, yukon", "category": "", "unit": ""}, {"id": "franks-42", "name": "radicchio", "category": "", "unit": ""}, {"id": "franks-43", "name": "radish, red", "category": "", "unit": ""}, {"id": "franks-44", "name": "shallots", "category": "", "unit": ""}, {"id": "franks-45", "name": "squash, mixed", "category": "", "unit": ""}, {"id": "franks-46", "name": "tomatoes, cherry", "category": "", "unit": ""}]}, "provvista": {"name": "Provvista", "contact": "", "phone": "1-800-892-0321", "email": "seaorders@provvista.com", "cc": "", "schedule": "Mon for Tue, Wed for Thu · 4pm cutoff", "days": [1, 3], "order": 10, "items": [{"id": "provvista-0", "name": "butter, plugra", "category": "", "unit": ""}, {"id": "provvista-1", "name": "cheese, parmigiano", "category": "", "unit": ""}, {"id": "provvista-2", "name": "fever tree tonic water", "category": "", "unit": ""}, {"id": "provvista-3", "name": "fever tree ginger beer", "category": "", "unit": ""}, {"id": "provvista-4", "name": "olive oil, laudemio", "category": "", "unit": ""}, {"id": "provvista-5", "name": "olive oil, monini 10L", "category": "", "unit": ""}, {"id": "provvista-6", "name": "prosciutto cotto", "category": "", "unit": ""}, {"id": "provvista-7", "name": "vanilla beans, tahitian", "category": "", "unit": ""}, {"id": "provvista-8", "name": "vanilla paste", "category": "", "unit": ""}, {"id": "provvista-9", "name": "vinegar, red volpaia", "category": "", "unit": ""}, {"id": "provvista-10", "name": "vinegar, white volpaia", "category": "", "unit": ""}]}, "cherryst": {"name": "Cherry St.", "contact": "", "phone": "757-478-6757", "email": "", "cc": "", "schedule": "Special order", "days": [], "order": 21, "items": []}, "eastanchor": {"name": "East Anchor Seafood", "contact": "Kayley", "phone": "206-947-4902", "email": "info@eastanchorseafood.com", "cc": "", "schedule": "Sun – Fri", "days": [0, 1, 2, 3, 4, 5], "order": 1, "items": [{"id": "eastanchor-0", "name": "gulf shrimp", "category": "", "unit": ""}, {"id": "eastanchor-1", "name": "king salmon", "category": "", "unit": ""}]}, "ritrovo": {"name": "Ritrovo", "contact": "", "phone": "206-985-1635", "email": "", "cc": "", "schedule": "Mon for Wed", "days": [1], "order": 11, "items": [{"id": "ritrovo-0", "name": "controne pepper", "category": "", "unit": ""}, {"id": "ritrovo-1", "name": "evoo, casina rossa", "category": "", "unit": ""}, {"id": "ritrovo-2", "name": "vinegar, balsamico", "category": "", "unit": ""}]}};
+function localDb() {
+  const KEY = "og:db:v1";
+  let store;
+  try { store = JSON.parse(localStorage.getItem(KEY) || "null"); } catch { store = null; }
+  if (!store || !store.vendors) {
+    store = { vendors: JSON.parse(JSON.stringify(SEED_VENDORS)), drafts: {}, history: {}, settings: {} };
+    try { localStorage.setItem(KEY, JSON.stringify(store)); } catch {}
+  }
+  const subs = [];
+  const snapOf = (coll) => {
+    const docs = Object.entries(store[coll] || {}).map(([id, d]) => ({ id, exists: true, data: () => d }));
+    return { docs, size: docs.length, empty: !docs.length, metadata: { fromCache: false, hasPendingWrites: false } };
+  };
+  const docSnap = (coll, id) => { const d = (store[coll] || {})[id]; return { id, exists: !!d, data: () => d, metadata: { fromCache: false, hasPendingWrites: false } }; };
+  const notify = (coll) => queueMicrotask(() => subs.forEach(s => { if (s.coll === coll) s.fire(); }));
+  const persist = () => { try { localStorage.setItem(KEY, JSON.stringify(store)); return null; } catch (e) { return { code: "quota_exceeded", message: String(e) }; } };
+  const api = {
+    collection(coll) { return { onSnapshot(cb) { const s = { coll, fire: () => cb(snapOf(coll)) }; subs.push(s); queueMicrotask(s.fire); return () => subs.splice(subs.indexOf(s), 1); } }; },
+    doc(path) {
+      const [coll, id] = path.split("/");
+      return {
+        set(data) { (store[coll] ||= {})[id] = JSON.parse(JSON.stringify(data)); const err = persist(); notify(coll); return err ? Promise.reject(err) : Promise.resolve(); },
+        delete() { if (store[coll]) delete store[coll][id]; persist(); notify(coll); return Promise.resolve(); },
+        onSnapshot(cb) { const s = { coll, fire: () => cb(docSnap(coll, id)) }; subs.push(s); queueMicrotask(s.fire); return () => subs.splice(subs.indexOf(s), 1); },
+      };
+    },
+    exportAll() { return JSON.stringify({ app: "order-guide", savedAt: new Date().toISOString(), store }, null, 1); },
+    importAll(text) {
+      const parsed = JSON.parse(text);
+      const next = parsed && parsed.store;
+      if (!next || typeof next.vendors !== "object") throw new Error("not a backup");
+      store = { vendors: next.vendors, drafts: next.drafts || {}, history: next.history || {}, settings: next.settings || {} };
+      persist(); ["vendors", "drafts", "history", "settings"].forEach(notify);
+    },
+  };
+  return api;
+}
+
+async function start() {
+  render();
+  db = localDb();
+  // drafts for vendors that no longer exist, and settings before first save, are handled the same as online
+  const fail = e => { console.error(e); if (e?.code === "revoked" || e?.code === "not_granted") { S.phase = "nodb"; render(); } };
+  db.collection("vendors").onSnapshot(snap => {
+    S.vendors = snap.docs.map(d => ({ id: d.id, contact: "", email: "", cc: "", phone: "", schedule: "", days: [], items: [], ...clone(d.data()) }))
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    if (S.phase !== "ready" && !snap.metadata.fromCache) { S.phase = "ready"; }
+    if (S.vendors.length) { S.phase = "ready"; openToday(); }
+    softRender();
+  }, fail);
+  db.collection("drafts").onSnapshot(snap => {
+    const seen = new Set();
+    snap.docs.forEach(d => { seen.add(d.id); mergeDraft(d.id, d.data()); });
+    Object.keys(S.drafts).forEach(id => { if (!seen.has(id) && !dirty[id]) mergeDraft(id, {}); });
+    if (S.phase === "ready") openToday();
+    softRender();
+  }, fail);
+  db.collection("history").onSnapshot(snap => { snap.docs.forEach(d => S.hist[d.id] = clone(d.data())); softRender(); }, fail);
+  db.doc("settings/main").onSnapshot(d => { if (d.exists) S.settings = { ...S.settings, ...clone(d.data()) }; softRender(); }, fail);
+  setTimeout(() => { if (S.phase === "loading") { S.phase = "ready"; render(); } }, 4000);
+}
+start();
+})();
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>
